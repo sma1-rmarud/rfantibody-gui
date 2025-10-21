@@ -27,7 +27,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+    dockerfile: Dockerfile
     container_name: rfantibody-frontend
     ports:
       - "2239:2239"
@@ -86,3 +86,32 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+
+  alphafold3:
+    build:
+      context: ./third_party/alphafold3
+      dockerfile: docker/Dockerfile
+    image: alphafold3:latest
+    container_name: alphafold3
+    gpus: all
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HYDRA_FULL_ERROR=1
+    tty: true
+    stdin_open: true
+    command:
+      - /bin/bash
+      - -lc
+      - |
+        set -Eeuo pipefail
+        nvidia-smi || true
+        echo "[compose] AF3 ready; sleeping..."
+        echo "[compose] mounted: /root/af_input /root/af_output /root/models /root/public_databases"
+        ls -al /root/models || true
+        ls -al /root/public_databases || true
+        sleep infinity
+    volumes:
+      - ${HOST_AF3_INPUT_DIR:-./data/af3_input}:/root/af_input
+      - ${HOST_AF3_OUTPUT_DIR:-./data/af3_output}:/root/af_output
+      - ${HOST_AF3_MODELS_DIR:-/abs/path/to/af3_models}:/root/models:ro
+      - ${HOST_AF3_DB_DIR:-/abs/path/to/af3_databases}:/root/public_databases:ro
