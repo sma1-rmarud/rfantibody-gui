@@ -95,6 +95,7 @@ docker rmi $(docker images -aq)
 
 2. Remove previous ver directory
 Move to rfantibody-gui Terminal
+
 example: account@server:/workspace/rfantibody-gui
 ```bash
 cd ..
